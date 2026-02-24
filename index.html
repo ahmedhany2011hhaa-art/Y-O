@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZEYKOR | Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f0f2f5; font-family: sans-serif; margin: 0; }
+        .hero-section { position: relative; height: 450px; width: 100%; overflow: hidden; }
+        .bg-blur { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(20px); transform: scale(1.1); z-index: 1; }
+        .hero-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 30px; background: linear-gradient(to bottom, transparent, #f0f2f5); }
+        .profile-img { width: 180px; height: 180px; border-radius: 20px; object-fit: cover; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .social-bar { display: flex; gap: 20px; margin-top: 15px; font-size: 22px; color: #1c1e21; }
+        .custom-link-card { background: white; border-radius: 15px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 12px; transition: 0.2s; text-decoration: none; color: inherit; }
+        .custom-link-card:active { transform: scale(0.98); }
+        .link-icon { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section">
+        <div id="main-bg" class="bg-blur"></div>
+        <div class="hero-content">
+            <img id="main-photo" src="" class="profile-img">
+            <h1 id="main-name" class="text-3xl font-bold text-[#1c1e21] mb-1">---</h1>
+            <div class="flex items-center gap-4 text-zinc-600 text-sm mb-4">
+                <span><i class="fa-solid fa-users ml-1"></i> <span id="main-followers">0</span> Followers</span>
+                <span><i class="fa-solid fa-location-dot ml-1"></i> <span id="main-location">Egypt</span></span>
+            </div>
+            <div class="social-bar">
+                <a id="link-fb" href="#"><i class="fa-brands fa-facebook"></i></a>
+                <a id="link-ig" href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a id="link-tk" href="#"><i class="fa-brands fa-tiktok"></i></a>
+                <a id="link-yt" href="#"><i class="fa-brands fa-youtube"></i></a>
+                <a id="link-sc" href="#"><i class="fa-brands fa-snapchat"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-5">
+        <h3 class="font-bold text-lg mb-4 text-[#1c1e21]">Custom Links</h3>
+        <div id="links-container">
+            </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        const db = getDatabase(initializeApp({
+            apiKey: "AIzaSyBA7Fqc6f2tgDNqa7lomWHZljzBuxLSSL8",
+            databaseURL: "https://projectfghh-default-rtdb.firebaseio.com"
+        }));
+
+        onValue(ref(db, 'ZEYKOR_PROFILE'), (snap) => {
+            const data = snap.val() || {};
+            const info = data.info || {};
+            
+            // تحديث البيانات الأساسية
+            document.getElementById('main-photo').src = info.photo || '';
+            document.getElementById('main-bg').style.backgroundImage = `url(${info.photo})`;
+            document.getElementById('main-name').innerText = info.name || 'Zeykor';
+            document.getElementById('main-followers').innerText = info.followers || '0';
+            document.getElementById('main-location').innerText = info.location || 'Egypt';
+
+            // تحديث الروابط الاجتماعية
+            if(data.socials) {
+                document.getElementById('link-fb').href = data.socials.fb || '#';
+                document.getElementById('link-ig').href = data.socials.ig || '#';
+                document.getElementById('link-tk').href = data.socials.tk || '#';
+                document.getElementById('link-yt').href = data.socials.yt || '#';
+                document.getElementById('link-sc').href = data.socials.sc || '#';
+            }
+
+            // تحديث الروابط المخصصة
+            const container = document.getElementById('links-container');
+            container.innerHTML = "";
+            if(data.customLinks) {
+                Object.values(data.customLinks).forEach(link => {
+                    container.innerHTML += `
+                        <a href="${link.url}" class="custom-link-card">
+                            <img src="${link.icon}" class="link-icon">
+                            <span class="font-bold text-zinc-800">${link.title}</span>
+                        </a>`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
